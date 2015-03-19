@@ -5,7 +5,7 @@ android {
     buildToolsVersion "21.1.2"
 
     defaultConfig {
-        applicationId "com.example.arbrowser.arbrowser"
+        applicationId "com.saugat.arbrowser"
         minSdkVersion 16
         targetSdkVersion 21
         versionCode 1
