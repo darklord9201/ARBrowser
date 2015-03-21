@@ -1,10 +1,13 @@
 package com.saugat.arbrowser;
 
+import android.location.Location;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.location.LocationListener;
+import android.location.LocationManager;
 
 import com.metaio.sdk.ARViewActivity;
 import com.metaio.sdk.MetaioDebug;
@@ -21,8 +24,10 @@ import com.metaio.sdk.jni.SensorValues;
 import com.metaio.sdk.jni.Vector3d;
 import com.metaio.tools.io.AssetsManager;
 
+import java.security.Provider;
 
-public class CameraActivity extends ARViewActivity {
+
+public class CameraActivity extends ARViewActivity implements LocationListener {
 
     private IAnnotatedGeometriesGroup myAnnotatedGeometriesGroup;
 
@@ -31,6 +36,8 @@ public class CameraActivity extends ARViewActivity {
     * */
 
     private IGeometry newCordinate ;
+    LLACoordinate current = new LLACoordinate();
+
     @Override
     protected int getGUILayout() {
 
@@ -56,6 +63,8 @@ public class CameraActivity extends ARViewActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ar_test);
+
+        boolean result = metaioSDK.setTrackingConfiguration("GPS", false);
     }
 
 
@@ -82,4 +91,23 @@ public class CameraActivity extends ARViewActivity {
     }
 
 
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
 }
