@@ -8,8 +8,14 @@ import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListe
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.wearable.Asset;
+import com.metaio.sdk.ARViewActivity;
+import com.metaio.sdk.jni.IGeometry;
+import com.metaio.sdk.jni.IMetaioSDKCallback;
 
 import android.content.Intent;
+import android.content.res.AssetManager;
+import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.app.Activity;
 import android.os.Bundle;
@@ -22,8 +28,8 @@ import android.widget.Toast;
 
 public class HomeActivity extends Activity implements ConnectionCallbacks,OnConnectionFailedListener, LocationListener {
 
-    private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 1000;
-    private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
+
+    private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1000;
 
     private boolean mRequestingLocationUpdates = true;
 
@@ -40,16 +46,15 @@ public class HomeActivity extends Activity implements ConnectionCallbacks,OnConn
     private Location cLocation;
     private Button btnCamera;
 
-
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(com.saugat.arbrowser.R.layout.homescreen);
 
         lblLocation = (TextView) findViewById(R.id.lblLocation);
         btnShowLocation = (Button) findViewById(R.id.btnShowLocation);
         btnUpdateLocation = (Button) findViewById(R.id.btnUpdateLocation);
+        btnCamera = (Button) findViewById(R.id.btnCamera);
 
         if (checkPlayServices()) {
             buildGoogleApiClient();
@@ -75,7 +80,8 @@ public class HomeActivity extends Activity implements ConnectionCallbacks,OnConn
         btnCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+               Intent i = new Intent(getBaseContext() , CameraActivity.class);
+               startActivity(i);
             }
         });
     }
@@ -85,7 +91,9 @@ public class HomeActivity extends Activity implements ConnectionCallbacks,OnConn
        protected void onStart() {
        super.onStart();
        if (mGoogleApiClient != null) {
-            mGoogleApiClient.connect();
+           Toast.makeText(this, "NO GPS",
+                   Toast.LENGTH_LONG).show();
+           mGoogleApiClient.connect();
         }
     }
 
@@ -146,7 +154,11 @@ public class HomeActivity extends Activity implements ConnectionCallbacks,OnConn
             double longitude = cLocation.getLongitude();
             double altitude = cLocation.getAltitude();
 
-            lblLocation.setText(latitude + "," + longitude + "," + altitude);
+            AssetManager assetManager = getAssets();
+
+//            lblLocation.setText(latitude + "," + longitude + "," + altitude);
+            lblLocation.setText(assetManager+"");
+
         }else {
             lblLocation.setText(
                     "Couldn't get the location. Make sure location is enabled on the device"
@@ -178,8 +190,10 @@ public class HomeActivity extends Activity implements ConnectionCallbacks,OnConn
 
     @Override
     public void onConnected(Bundle arg0) {
-        startLocationUpdates();
-        displayLocation();
+        if(mRequestingLocationUpdates){
+            startLocationUpdates();
+            displayLocation();
+        }
     }
 
     public void startLocationUpdates(){
@@ -200,6 +214,6 @@ public class HomeActivity extends Activity implements ConnectionCallbacks,OnConn
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
+       super.onDestroy();
     }
 }

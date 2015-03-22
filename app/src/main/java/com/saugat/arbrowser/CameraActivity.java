@@ -1,14 +1,18 @@
 package com.saugat.arbrowser;
 
-import android.location.Location;
-import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
-import android.app.Activity;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.location.LocationListener;
-import android.location.LocationManager;
+import java.io.File;
+import java.util.concurrent.locks.Lock;
 
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Bundle;
+import android.text.TextPaint;
+import android.util.Log;
+import android.view.View;
+
+import com.metaio.cloud.plugin.util.MetaioCloudUtils;
+import com.metaio.sdk.ARELInterpreterAndroidJava;
 import com.metaio.sdk.ARViewActivity;
 import com.metaio.sdk.MetaioDebug;
 import com.metaio.sdk.jni.AnnotatedGeometriesGroupCallback;
@@ -27,16 +31,16 @@ import com.metaio.tools.io.AssetsManager;
 import java.security.Provider;
 
 
-public class CameraActivity extends ARViewActivity implements LocationListener {
+public class CameraActivity extends ARViewActivity{
 
     private IAnnotatedGeometriesGroup myAnnotatedGeometriesGroup;
+    private MyAnnotatedGeometriesGroupCallback mAnnotatedGeometriesGroupCallback;
+
 
     /*
         Geometry
     * */
-
-    private IGeometry newCordinate ;
-    LLACoordinate current = new LLACoordinate();
+    private IGeometry mIslingtonCollege;
 
     @Override
     protected int getGUILayout() {
@@ -45,13 +49,55 @@ public class CameraActivity extends ARViewActivity implements LocationListener {
     }
 
     @Override
+    protected void onDestroy()
+    {
+
+
+        super.onDestroy();
+    }
+
+
+
+
+    @Override
     protected IMetaioSDKCallback getMetaioSDKCallbackHandler() {
         return null;
     }
 
     @Override
     protected void loadContents() {
+        IAnnotatedGeometriesGroup mAnnotatedGeometriesGroup = metaioSDK.createAnnotatedGeometriesGroup();
+        mAnnotatedGeometriesGroupCallback = new MyAnnotatedGeometriesGroupCallback();
+        mAnnotatedGeometriesGroup.registerCallback(mAnnotatedGeometriesGroupCallback);
 
+        metaioSDK.setLLAObjectRenderingLimits(5, 200);
+
+        metaioSDK.setRendererClippingPlaneLimits(10, 220000);
+
+        LLACoordinate islingtonCollege = new LLACoordinate(27.7079649, 85.326495, 0, 0);
+        mIslingtonCollege = createPOIGeometry(islingtonCollege);
+
+        mAnnotatedGeometriesGroup.addGeometry(mIslingtonCollege, "Islington College");
+    }
+
+    private IGeometry createPOIGeometry(LLACoordinate lla){
+        AssetManager assetManager = getAssets();
+        final File path =
+                AssetsManager.getAssetPathAsFile(getApplicationContext(),
+                        assetManager+"/ExamplePOI.obj");
+        if (path != null)
+        {
+            IGeometry geo = metaioSDK.createGeometry(path);
+            geo.setTranslationLLA(lla);
+            geo.setLLALimitsEnabled(true);
+            geo.setScale(100);
+            return geo;
+        }
+        else
+        {
+            MetaioDebug.log(Log.ERROR, "Missing files for POI geometry");
+            return null;
+        }
     }
 
     @Override
@@ -67,47 +113,33 @@ public class CameraActivity extends ARViewActivity implements LocationListener {
         boolean result = metaioSDK.setTrackingConfiguration("GPS", false);
     }
 
-
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main2, menu);
-        return true;
-    }
+    public void onDrawFrame(){
+        if(metaioSDK != null && mSensors != null){
+            SensorValues sensorValues = mSensors.getSensorValues();
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+            float heading = 0.0f;
+            if(sensorValues.hasAttitude()){
+                float m[] = new float[9];
+                sensorValues.getAttitude().getRotationMatrix(m);
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+                Vector3d v = new Vector3d(m[6], m[7], m[8]);
+                v.normalize();
+
+                heading = (float)(-Math.atan2(v.getY(), v.getX() - Math.PI / 2.0));
+            }
+            IGeometry geos[] = new IGeometry[]{mIslingtonCollege};
+            Rotation rot =new Rotation((float) (Math.PI / 2.0), 0.0f, -heading);
+
+            for(IGeometry geo: geos){
+                geo.setRotation(rot);
+            }
         }
-
-        return super.onOptionsItemSelected(item);
+        super.onDrawFrame();
     }
 
-
-    @Override
-    public void onLocationChanged(Location location) {
+    final class MyAnnotatedGeometriesGroupCallback extends AnnotatedGeometriesGroupCallback{
 
     }
 
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
-    }
 }
