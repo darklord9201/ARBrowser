@@ -3,18 +3,18 @@ package com.saugat.arbrowser;
 import java.io.File;
 import java.util.concurrent.locks.Lock;
 
-import android.content.res.AssetManager;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.hardware.Sensor;
 import android.os.Bundle;
 import android.text.TextPaint;
 import android.util.Log;
 import android.view.View;
 
-import com.metaio.cloud.plugin.util.MetaioCloudUtils;
-import com.metaio.sdk.ARELInterpreterAndroidJava;
 import com.metaio.sdk.ARViewActivity;
 import com.metaio.sdk.MetaioDebug;
+import com.metaio.sdk.SensorsComponentAndroid;
 import com.metaio.sdk.jni.AnnotatedGeometriesGroupCallback;
 import com.metaio.sdk.jni.EGEOMETRY_FOCUS_STATE;
 import com.metaio.sdk.jni.IAnnotatedGeometriesGroup;
@@ -28,19 +28,19 @@ import com.metaio.sdk.jni.SensorValues;
 import com.metaio.sdk.jni.Vector3d;
 import com.metaio.tools.io.AssetsManager;
 
+
 import java.security.Provider;
 
 
-public class CameraActivity extends ARViewActivity{
-
-    private IAnnotatedGeometriesGroup myAnnotatedGeometriesGroup;
-    private MyAnnotatedGeometriesGroupCallback mAnnotatedGeometriesGroupCallback;
-
+public class CameraActivity extends ARViewActivity implements SensorsComponentAndroid.Callback{
 
     /*
         Geometry
     * */
     private IGeometry mIslingtonCollege;
+    private IGeometry mHome;
+
+    private IRadar mRadar;
 
     @Override
     protected int getGUILayout() {
@@ -51,13 +51,8 @@ public class CameraActivity extends ARViewActivity{
     @Override
     protected void onDestroy()
     {
-
-
         super.onDestroy();
     }
-
-
-
 
     @Override
     protected IMetaioSDKCallback getMetaioSDKCallbackHandler() {
@@ -66,25 +61,48 @@ public class CameraActivity extends ARViewActivity{
 
     @Override
     protected void loadContents() {
-        IAnnotatedGeometriesGroup mAnnotatedGeometriesGroup = metaioSDK.createAnnotatedGeometriesGroup();
-        mAnnotatedGeometriesGroupCallback = new MyAnnotatedGeometriesGroupCallback();
-        mAnnotatedGeometriesGroup.registerCallback(mAnnotatedGeometriesGroupCallback);
+        boolean result = metaioSDK.setTrackingConfiguration("GPS");
+
 
         metaioSDK.setLLAObjectRenderingLimits(5, 200);
 
         metaioSDK.setRendererClippingPlaneLimits(10, 220000);
 
         LLACoordinate islingtonCollege = new LLACoordinate(27.7079649, 85.326495, 0, 0);
+        LLACoordinate home = new LLACoordinate(27.7366866, 85.357272, 0, 0);
         mIslingtonCollege = createPOIGeometry(islingtonCollege);
+        mHome = createPOIGeometry(home);
 
-        mAnnotatedGeometriesGroup.addGeometry(mIslingtonCollege, "Islington College");
+
+
+
+
+
+        String metaioManModel = AssetsManager.getAssetPath("metaioman.md2");
+
+        if(metaioManModel != null){
+            mIslingtonCollege = metaioSDK.createGeometry(metaioManModel);
+            if(mIslingtonCollege != null){
+                mIslingtonCollege.setTranslationLLA(islingtonCollege);
+                mIslingtonCollege.setScale(200);
+            }
+            else{
+                MetaioDebug.log(Log.ERROR, "Error loading geometry" + metaioManModel);
+            }
+        }
+
+        mRadar = metaioSDK.createRadar();
+        mRadar.setBackgroundTexture(AssetsManager.getAssetPath("radar.png"));
+        mRadar.setObjectsDefaultTexture(AssetsManager.getAssetPath("yellow.png"));
+        mRadar.setRelativeToScreen(IGeometry.ANCHOR_TL);
+
+        mRadar.add(mIslingtonCollege);
+        mRadar.add(mHome);
     }
 
     private IGeometry createPOIGeometry(LLACoordinate lla){
-        AssetManager assetManager = getAssets();
-        final File path =
-                AssetsManager.getAssetPathAsFile(getApplicationContext(),
-                        assetManager+"/ExamplePOI.obj");
+
+        String path = AssetsManager.getAssetPath("metaioman.md2");
         if (path != null)
         {
             IGeometry geo = metaioSDK.createGeometry(path);
@@ -138,8 +156,18 @@ public class CameraActivity extends ARViewActivity{
         super.onDrawFrame();
     }
 
-    final class MyAnnotatedGeometriesGroupCallback extends AnnotatedGeometriesGroupCallback{
+    @Override
+    public void onGravitySensorChanged(float[] floats) {
 
     }
 
+    @Override
+    public void onHeadingSensorChanged(float[] floats) {
+
+    }
+
+    @Override
+    public void onLocationSensorChanged(LLACoordinate llaCoordinate) {
+
+    }
 }

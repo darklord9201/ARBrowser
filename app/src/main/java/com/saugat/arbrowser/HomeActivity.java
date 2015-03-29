@@ -10,25 +10,32 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.wearable.Asset;
 import com.metaio.sdk.ARViewActivity;
+import com.metaio.sdk.MetaioDebug;
 import com.metaio.sdk.jni.IGeometry;
 import com.metaio.sdk.jni.IMetaioSDKCallback;
+import com.metaio.tools.io.AssetsManager;
 
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.app.Activity;
 import android.os.Bundle;
 import android.location.Location;
+import android.util.Log;
 import android.view.View;
+import android.webkit.WebSettings;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+
 
 public class HomeActivity extends Activity implements ConnectionCallbacks,OnConnectionFailedListener, LocationListener {
 
-
+    AssetsExtracter mTask;
     private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1000;
 
     private boolean mRequestingLocationUpdates = true;
@@ -50,6 +57,9 @@ public class HomeActivity extends Activity implements ConnectionCallbacks,OnConn
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(com.saugat.arbrowser.R.layout.homescreen);
+
+        mTask = new AssetsExtracter();
+        mTask.execute(0);
 
         lblLocation = (TextView) findViewById(R.id.lblLocation);
         btnShowLocation = (Button) findViewById(R.id.btnShowLocation);
@@ -73,7 +83,8 @@ public class HomeActivity extends Activity implements ConnectionCallbacks,OnConn
         btnUpdateLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent(getApplicationContext(), modelTest.class);
+                startActivity(intent);
             }
         });
 
@@ -84,6 +95,27 @@ public class HomeActivity extends Activity implements ConnectionCallbacks,OnConn
                startActivity(i);
             }
         });
+    }
+
+    private class AssetsExtracter extends AsyncTask<Integer, Integer, Boolean>
+    {
+        @Override
+        protected Boolean doInBackground(Integer... params)
+        {
+            try
+            {
+                // Extract all assets except Menu. Overwrite existing files for debug build only.
+                final String[] ignoreList = {"Menu", "webkit", "sounds", "images", "webkitsec"};
+                AssetsManager.extractAllAssets(getApplicationContext(), "", ignoreList, BuildConfig.DEBUG);
+            }
+            catch (IOException e)
+            {
+                MetaioDebug.printStackTrace(Log.ERROR, e);
+                return false;
+            }
+
+            return true;
+        }
     }
 
 
@@ -154,11 +186,7 @@ public class HomeActivity extends Activity implements ConnectionCallbacks,OnConn
             double longitude = cLocation.getLongitude();
             double altitude = cLocation.getAltitude();
 
-            AssetManager assetManager = getAssets();
-
-//            lblLocation.setText(latitude + "," + longitude + "," + altitude);
-            lblLocation.setText(assetManager+"");
-
+            lblLocation.setText(latitude + "," + longitude + "," + altitude);
         }else {
             lblLocation.setText(
                     "Couldn't get the location. Make sure location is enabled on the device"

@@ -5,4 +5,6 @@
     <string name="lbl_current_location">Current Location</string>
     <string name="btn_get_current_location">Get Current Location</string>
     <string name="btn_update_location">Update</string>
+    <string name="title_activity_camera__test">Camera_Test</string>
+    <string name="title_activity_model_test">modelTest</string>
 </resources>
