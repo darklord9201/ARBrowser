@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.ACCESS_GPS" />
     <uses-permission android:name="android.permission.SET_DEBUG_APP" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <uses-feature
         android:name="android.hardware.sensor.accelerometer"
@@ -52,6 +53,10 @@ e
         <activity
             android:name=".modelTest"
             android:label="@string/title_activity_model_test" >
+        </activity>
+        <activity
+            android:name=".location_retrieve_test"
+            android:label="@string/title_activity_location_retrieve_test" >
         </activity>
     </application>
 

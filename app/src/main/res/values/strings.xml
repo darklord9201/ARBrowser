@@ -7,4 +7,6 @@
     <string name="btn_update_location">Update</string>
     <string name="title_activity_camera__test">Camera_Test</string>
     <string name="title_activity_model_test">modelTest</string>
+    <string name="title_activity_camera__test2">Camera_Test2</string>
+    <string name="title_activity_location_retrieve_test">location_retrieve_test</string>
 </resources>
