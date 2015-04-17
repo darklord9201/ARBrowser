@@ -28,24 +28,12 @@ public class MapsActivity extends Activity implements OnMapReadyCallback {
 
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        String longi = data.getStringExtra("longitude");
-        String lat = data.getStringExtra("latitude");
-
-        double longitude = Double.parseDouble(longi);
-        double latitude = Double.parseDouble(lat);
-
-    }
 
     public void onMapReady(GoogleMap map) {
 
-        double longitude = Double.parseDouble(getIntent().getExtras().getString("longitude"));
-        double latitude = Double.parseDouble(getIntent().getExtras().getString("latitude"));
+
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                new LatLng(latitude, longitude), 2));
+                new LatLng(27.73576455, 85.35626873), 2));
 
         // Other supported types include: MAP_TYPE_NORMAL,
         // MAP_TYPE_TERRAIN, MAP_TYPE_HYBRID and MAP_TYPE_NONE

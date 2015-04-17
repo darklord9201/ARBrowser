@@ -83,7 +83,7 @@ public class HomeActivity extends Activity implements ConnectionCallbacks,OnConn
         btnUpdateLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), location_retrieve_test.class);
+                Intent intent = new Intent(getApplicationContext(), Camera_Test.class);
                 startActivity(intent);
             }
         });
@@ -91,7 +91,7 @@ public class HomeActivity extends Activity implements ConnectionCallbacks,OnConn
         btnCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               Intent i = new Intent(getBaseContext(), Camera_Test.class);
+               Intent i = new Intent(getBaseContext(), MainActivity.class);
                startActivity(i);
             }
         });
