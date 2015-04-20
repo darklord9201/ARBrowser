@@ -29,6 +29,14 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginLeft="200dp" />
 
+                <TableLayout
+                    android:id="@+id/table"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true">
+                </TableLayout>
+
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

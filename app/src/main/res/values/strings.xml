@@ -11,4 +11,6 @@
     <string name="title_activity_location_retrieve_test">location_retrieve_test</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_dynamic_location">dynamic_location</string>
+    <string name="title_activity_database_test">databaseTest</string>
 </resources>

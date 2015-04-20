@@ -65,7 +65,7 @@ public class Camera_Test extends ARViewActivity implements SensorsComponentAndro
     private IAnnotatedGeometriesGroup mAnnotatedGeometriesGroup;
     private MyAnnotatedGeometriesGroupCallback mAnnotatedGeometriesGroupCallback;
 
-    private String result;
+    private String poiResult;
 
 
 
@@ -152,7 +152,7 @@ public class Camera_Test extends ARViewActivity implements SensorsComponentAndro
                 builder.append(line);
             }
 
-           setResult(builder);
+           set_poiResult(builder);
 
         }
 
@@ -161,12 +161,12 @@ public class Camera_Test extends ARViewActivity implements SensorsComponentAndro
         }
     }
 
-    public void setResult(StringBuilder builder){
-        result = builder.toString();
+    public void set_poiResult(StringBuilder builder){
+        poiResult = builder.toString();
     }
 
-    public String getResult(){
-        return result;
+    public String get_poiResult(){
+        return poiResult;
     }
 
 
